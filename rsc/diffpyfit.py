@@ -32,5 +32,26 @@ class DiffpyFit(CreateRecipe):
         res = FitResults(self.recipe)
         res.saveResults(f'{out_dir}{self.name}.res')
 
-    def run_molarcontribution_fit():
-        pass
+    def run_molarcontribution_fit(self, data_file, out_dir):
+        if not hasattr(self, 'recipe'):
+            self.update_data(data_file)
+            self.update_recipe()
+            self.default_restraints()
+            self.create_param_order()
+
+        else:
+            self.update_data(data_file)
+        self.update_data(data_file)
+        dh.optimize_params_manually(
+            self.recipe,
+            self.param_order,
+            rmin=self.conf.rmin,
+            rmax=self.conf.rmax,
+            rstep=self.conf.rstep,
+            ftol=1e-5,
+            print_step=False
+        )
+
+        res = FitResults(self.recipe)
+        
+        self.name = data_file.split('/')[-1].split('.')[0]
