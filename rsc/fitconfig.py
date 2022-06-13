@@ -1,13 +1,41 @@
+import diffpy.srfit.pdf.characteristicfunctions as CF
 from dataclasses import dataclass
-import json
 
 
 @dataclass(frozen=True)
 class FitConfig():
+    __slots__ = ["qdamp", "qbroad", "rmin", "rmax", "rstep"]
+    qdamp: float
+    qbroad: float
+    rmin: float
+    rmax: float
+    rstep: float
 
+    def fetch_function(self, phase, function):
+        func_param = {
+            'sphericalCF':
+                (CF.sphericalCF,
+                    ['r', f'{phase}_psize']),
+            'spheroidalCF':
+                (CF.spheroidalCF,
+                    ['r', f'{phase}_erad', f'{phase}_prad']),
+            'spheroidalCF2':
+                (CF.spheroidalCF2,
+                    ['r', '{phase}_psize', f'{phase}_axrat']),
+            'lognormalSphericalCF':
+                (CF.lognormalSphericalCF,
+                    ['r', f'{phase}_psize', f'{phase}_psig']),
+            'sheetCF':
+                (CF.sheetCF,
+                    ['r', f'{phase}_sthick']),
+            'shellCF':
+                (CF.shellCF,
+                    ['r', f'{phase}_radius', f'{phase}_thickness']),
+            'shellCF2':
+                (CF.shellCF,
+                    ['r', f'{phase}_a', f'{phase}_delta']),
+            }
+        return func_param[function]
 
-    qdamp = config['MetaData']['qdamp']
-    qbroad = config['MetaData']['qbroad']
-    rmin = config['FitData']['rmin']
-    rmax = config['FitData']['rmax']
-    rstep =config['FitData']['rstep']
+    def __call__(self):
+        return {'qdamp': self.Qdamp, 'qbroad': self.Qbroad}
