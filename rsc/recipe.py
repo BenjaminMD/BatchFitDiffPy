@@ -1,8 +1,8 @@
 from diffpy.srfit.fitbase import FitResults
 from diffpy.srfit.pdf import PDFParser
-from fitconfig import FitConfig
+from rsc.fitconfig import FitConfig
 from itertools import count
-import diffpyhelper as dh
+import rsc.diffpyhelper as dh
 
 
 class CreateRecipe():
@@ -51,8 +51,8 @@ class CreateRecipe():
 
     def _create_functions(self):
         self.functions = {}
-        for phase, function in zip(self.phases, self.nano_shape):
-            function_definition = FitConfig().fetch_function(phase, function)
+        for phase, function in zip(self.phases, self.char_function):
+            function_definition = self.conf.fetch_function(phase, function)
             self.functions[f'{phase}{function}'] = function_definition
 
     def update_recipe(self):
@@ -65,7 +65,7 @@ class CreateRecipe():
         )
 
     def update_data(self, data_file):
-        if not self.recipe:
+        if not hasattr(self, 'recipe'):
             self.update_recipe()
         pp = PDFParser()
         pp.parseFile(data_file)
