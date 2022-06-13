@@ -6,9 +6,9 @@ import diffpyhelper as dh
 
 
 class CreateRecipe():
-    def __init__(self, conf, data_file, phases, char_function):
+    def __init__(self, conf, phases, char_function):
         self.conf = FitConfig(**conf)
-        self.data_file = data_file
+        # self.data_file = data_file
         self.char_function = char_function
 
         self.phases = self._parse_phases(phases)
@@ -57,7 +57,7 @@ class CreateRecipe():
 
     def update_recipe(self):
         self.recipe = dh.create_recipe_from_files(
-            data_file=self.data_file,
+            # data_file=self.data_file,
             meta_data=self.conf(),
             equation=self.equation,
             cif_files=self.cif_files,
@@ -72,3 +72,43 @@ class CreateRecipe():
         profile = self.recipe._contributions['PDF'].profile
         profile.loadParsedData(pp)
         profile.meta.update(self.conf())
+
+    def default_restraints(self):
+        recipe = self.recipe
+        for phase in self.phases:
+
+            delta2 = getattr(self.recipe, f'{phase}_delta2')
+            recipe.restrain(delta2, lb=1, ub=5, sig=1e-3)
+            delta2.value = 3.0
+
+            scale = getattr(self.recipe, f'{phase}_scale')
+            recipe.restrain(scale, lb=0.01, ub=2, sig=1e-3)
+            scale.value = 0.5
+
+            for abc in ['a', 'b', 'c']:
+                try:
+                    lat = getattr(self.recipe, f'{phase}_{abc}')
+                    lb_lat = lat.value - 0.2
+                    ub_lat = lat.value + 0.2
+                    recipe.restrain(lat, lb=lb_lat, ub=ub_lat, sig=1e-3)
+                except AttributeError:
+                    pass
+
+            for func in self.functions.values():
+                params = func[1][1:]
+                for p in params:
+                    param = getattr(self.recipe, p)
+                    recipe.restrain(param, lb=0, ub=1e2, sig=1e-3)
+
+    def create_param_order(self):
+        ns = []
+        for phase in self.phases:
+            for func in self.functions.values():
+                for varn in func[1][1:]:
+                    ns.append(varn)
+        ns = [n for n in ns if n]
+        self.param_order = [
+            ['free', 'lat', 'scale'],
+            ['free', *ns],
+            ['free', 'adp', 'delta2'],
+        ]

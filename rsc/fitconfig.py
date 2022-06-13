@@ -11,6 +11,9 @@ class FitConfig():
     rmax: float
     rstep: float
 
+    def __call__(self):
+        return {'qdamp': self.qdamp, 'qbroad': self.qbroad}
+
     def fetch_function(self, phase, function):
         func_param = {
             'sphericalCF':
@@ -37,5 +40,4 @@ class FitConfig():
             }
         return func_param[function]
 
-    def __call__(self):
-        return {'qdamp': self.Qdamp, 'qbroad': self.Qbroad}
+

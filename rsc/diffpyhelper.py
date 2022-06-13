@@ -250,7 +250,7 @@ def _initialize_recipe(
 def create_recipe_from_files(
         equation: str,
         cif_files: typing.Dict[str, str],
-        data_file: typing.Dict[str, str],
+        # data_file: typing.Dict[str, str],
         functions: typing.Dict[str, typing.Tuple[typing.Callable, typing.List[str]]] = {},
         meta_data: typing.Dict[str, typing.Union[str, int, float]] = None,
         fc_name: str = "PDF"
@@ -281,11 +281,11 @@ def create_recipe_from_files(
     if meta_data is None:
         meta_data = {}
     crystals = {n: loadCrystal(f) for n, f in cif_files.items()}
-    pp = PDFParser()
-    pp.parseFile(data_file)
+    # pp = PDFParser()
+    # pp.parseFile(data_file)
     profile = Profile()
-    profile.loadParsedData(pp)
-    profile.meta.update(meta_data)        
+    # profile.loadParsedData(pp)
+    # profile.meta.update(meta_data)        
     recipe, pg = _create_recipe(equation, crystals, functions, profile, fc_name=fc_name)
     _initialize_recipe(recipe, functions, crystals, fc_name=fc_name, meta_data = meta_data)
     return recipe#, pg
