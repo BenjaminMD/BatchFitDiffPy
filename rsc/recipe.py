@@ -80,11 +80,16 @@ class CreateRecipe():
         for phase in self.phases:
 
             delta2 = getattr(self.recipe, f'{phase}_delta2')
-            recipe.restrain(delta2, lb=1, ub=5, sig=1e-3)
+            recipe.restrain(delta2, lb=0, ub=5, sig=1e-3)
             delta2.value = 3.0
 
+            
+            # adp = getattr(self.recipe, f'{phase}_adp')
+            # recipe.restrain(adp, lb=0, ub=2, sig=1e-3)
+
+
             scale = getattr(self.recipe, f'{phase}_scale')
-            recipe.restrain(scale, lb=0.01, ub=2, sig=1e-3)
+            recipe.restrain(scale, lb=0.001, ub=2, sig=1e-3)
             scale.value = 0.5
 
             for abc in ['a', 'b', 'c']:
@@ -100,13 +105,15 @@ class CreateRecipe():
                 params = func[1][1:]
                 for p in params:
                     param = getattr(self.recipe, p)
-                    recipe.restrain(param, lb=0, ub=1e2, sig=1e-3)
+                    recipe.restrain(param, lb=0, ub=5e2, sig=1e-3)
 
     def create_param_order(self):
         ns = []
-        for varn in self.functions.values():
-            ns.append(varn[1][1:])
-        ns = [x for xs in ns for x in xs]
+        for _ in self.phases:
+            for func in self.functions.values():
+                for varn in func[1][1:]:
+                    ns.append(varn)
+        ns = [n for n in ns if n]
         self.param_order = [
             ['free', 'lat', 'scale'],
             ['free', *ns],
