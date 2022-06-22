@@ -104,11 +104,9 @@ class CreateRecipe():
 
     def create_param_order(self):
         ns = []
-        for phase in self.phases:
-            for func in self.functions.values():
-                for varn in func[1][1:]:
-                    ns.append(varn)
-        ns = [n for n in ns if n]
+        for varn in self.functions.values():
+            ns.append(varn[1][1:])
+        ns = [x for xs in ns for x in xs]
         self.param_order = [
             ['free', 'lat', 'scale'],
             ['free', *ns],
