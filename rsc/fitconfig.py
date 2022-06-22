@@ -37,7 +37,10 @@ class FitConfig():
             'shellCF2':
                 (CF.shellCF,
                     ['r', f'{phase}_a', f'{phase}_delta']),
-            }
+            'bulkCF':
+                (lambda r: 1,
+                    ['r']),
+        }
         return func_param[function]
 
 
