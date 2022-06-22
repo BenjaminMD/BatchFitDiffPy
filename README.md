@@ -3,4 +3,4 @@ Small script to quickly fit a batch of PDF data containing several phases. Allow
 
 ## Todo:
 - Save individual phase contributions and total gcalc
-
+- Create each recipe needed for the fit once and save to a Catalog of recipes to be used during the fit. To save memory and maybe run time.
