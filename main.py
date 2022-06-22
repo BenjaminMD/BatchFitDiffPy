@@ -9,20 +9,20 @@ from datetime import datetime
 startTime = datetime.now()
 
 DAT_DIR = './dat/'
-OUT_DIR = './res/'
+OUT_DIR = './res_single/'
 CONF_PATH = './FitConfig.json'
 
 
 def multi_run(file):
-    Fit.run_molarcontribution_fit(file, OUT_DIR, molar_limit=0.5)
-
+    # Fit.run_molarcontribution_fit(file, OUT_DIR, molar_limit=0.01)
+    Fit.run_simple_fit(file, OUT_DIR)
 if __name__ == "__main__":
     conf = read_config(CONF_PATH)
-    Fit = DiffpyFit(conf, ['Ni', 'NiO'], ['sphericalCF', 'sphericalCF'])
-    data_files = glob(f'{DAT_DIR}*.gr')
+    Fit = DiffpyFit(conf, ['Ni', 'Fe_bcc', 'Fe2O3'], ['sphericalCF', 'sphericalCF', 'sphericalCF'])
+    data_files = glob(f'{DAT_DIR}Ni3Fe_FD0001.gr')
     queue = Queue()
 
-    for chunk in np.array_split(data_files, len(data_files)//64):
+    for chunk in np.array_split(data_files, len(data_files)//1):
         processes = [Process(target=multi_run, args=(df,)) for df in chunk]
 
         for p in processes:
@@ -30,5 +30,5 @@ if __name__ == "__main__":
 
         for p in processes:
             p.join()
-
+        break
     print(datetime.now() - startTime)
