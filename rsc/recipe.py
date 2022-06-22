@@ -17,6 +17,8 @@ class CreateRecipe():
         self._create_equation()
         self._create_functions()
 
+        self.p_f = dict(zip(phases, self.char_function))
+
     def _phase_counter(self, phase):
         if not hasattr(self, f'{phase}_count'):
             setattr(self, f'{phase}_count', count(1))
@@ -112,3 +114,45 @@ class CreateRecipe():
             ['free', *ns],
             ['free', 'adp', 'delta2'],
         ]
+
+    def remove_phase(self, p):
+        if p not in self.phases:
+            raise ValueError(f'{p} is not in phases')
+        self.phases.remove(p)
+
+        f = self.p_f[p]
+
+        # remove phase from equation
+        equation_list = self.equation.split(' + ')
+        equation_list.remove(f'{p} * {p}{f}')
+        self.equation = ' + '.join(equation_list)
+
+        # remove phase from cif_files
+        self.cif_files.pop(f'{p}')
+
+        # remove phase from functions
+        self.functions.pop(f'{p}{f}')
+
+    def add_phase(self, p):
+        if p in self.phases:
+            raise ValueError(f'{p} is already in phases')
+        self.phases.append(p)
+        
+        f = self.p_f[p]
+        
+        # add phase to equation
+        equation_list = self.equation.split(' + ')
+        equation_list.append(f'{p} * {p}{f}')
+        self.equation = ' + '.join(equation_list)
+
+        # add phase to cif_files
+        self.cif_files[f'{p}'] = f'./CIFS/{p}.cif'
+
+        # add phase to functions
+        self.functions[f'{p}{f}'] = self.conf.fetch_function(p ,self.p_f[p])
+
+    def get_mol_contribution(self, phase):
+        tot_scale = 0 
+        for p in self.phases:
+            tot_scale += getattr(self.recipe,f'{p}_scale').value
+        return getattr(self.recipe,f'{phase}_scale').value/tot_scale

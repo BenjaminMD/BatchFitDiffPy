@@ -14,8 +14,7 @@ CONF_PATH = './FitConfig.json'
 
 
 def multi_run(file):
-    Fit.run_simple_fit(file, OUT_DIR)
-
+    Fit.run_molarcontribution_fit(file, OUT_DIR, molar_limit=0.5)
 
 if __name__ == "__main__":
     conf = read_config(CONF_PATH)
