@@ -22,7 +22,7 @@ if __name__ == "__main__":
     data_files = glob(f'{DAT_DIR}Ni3Fe_FD0001.gr')
     queue = Queue()
 
-    for chunk in np.array_split(data_files, len(data_files)//1):
+    for chunk in np.array_split(data_files, len(data_files)//64):
         processes = [Process(target=multi_run, args=(df,)) for df in chunk]
 
         for p in processes:
