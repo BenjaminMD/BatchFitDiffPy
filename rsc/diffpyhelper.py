@@ -2,6 +2,7 @@ import typing
 from pathlib import Path
 import numpy as np
 from diffpy.srfit.fitbase import FitContribution, FitRecipe, Profile
+from diffpy.srfit.fitbase import FitResults
 from diffpy.srfit.fitbase.parameterset import ParameterSet
 from diffpy.srfit.pdf import PDFGenerator, PDFParser
 from pyobjcryst import loadCrystal
@@ -19,7 +20,7 @@ def _create_recipe(
 
     Parameters
     ----------
-    equation :
+    equation :a
         The equation of G(r).
     crystals :
         A mapping from the name of variable in the equation to the crystal structure for PDF calculation.

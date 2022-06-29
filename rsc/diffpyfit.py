@@ -2,6 +2,7 @@ from diffpy.srfit.fitbase import FitResults
 from rsc.recipe import CreateRecipe
 import rsc.diffpyhelper as dh
 import numpy
+import re 
 
 class DiffpyFit(CreateRecipe):
     def __init__(self, conf, phases, char_function):
@@ -17,8 +18,7 @@ class DiffpyFit(CreateRecipe):
 
         else:
             self.update_data(data_file)
-        self.recipe.show()
-        self.complete_recipe(data_file)
+        # self.complete_recipe(data_file)
         dh.optimize_params_manually(
             self.recipe,
             self.param_order,
@@ -28,11 +28,12 @@ class DiffpyFit(CreateRecipe):
             ftol=1e-5,
             print_step=False
         )
+        dh.save_results(self.recipe, './out/', self.name, self.phases)
+        self.save_fits('./out/')
+        #res = FitResults(self.recipe)
+        #res.saveResults(f'{out_dir}{self.name}.res')
 
-        res = FitResults(self.recipe)
-        res.saveResults(f'{out_dir}{self.name}.res')
-
-    def get_gr(recipe):
+    def get_gr(self, recipe):
         """
         Get the gr of a recipe and for each phase contribution
         returns:
@@ -79,8 +80,10 @@ class DiffpyFit(CreateRecipe):
         res.saveResults(f'{out_dir}{self.name}{name_ext}.res')
 
     def save_fits(self, out_dir, name_ext=''):
-        get_gr(recipe)
-        dataout = numpy.column_stack([r, gobs, gcalc, gdiff, gr_composition])
+        r, gobs, gcalc, gdiff, baseline, gr_composition = self.get_gr(self.recipe)
+
+        dat = [v for v in gr_composition.values()]
+        dataout = numpy.column_stack([r, gobs, gcalc, gdiff, *dat])
         numpy.savetxt(f'{out_dir}{self.name}{name_ext}.fit', dataout)
 
     def complete_recipe(self, data_file):
@@ -98,7 +101,7 @@ class DiffpyFit(CreateRecipe):
         self.removed_phase = []
         for phase in self.phases:
             mol_contrib = self.get_mol_contribution(phase)
-            print(f'{phase} scale: {mol_contrib}')
+            #print(f'{phase} scale: {mol_contrib}')
             
             if mol_contrib < molar_limit:
                 self.remove_phase(phase)

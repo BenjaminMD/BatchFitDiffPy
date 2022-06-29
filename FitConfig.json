@@ -3,5 +3,5 @@
     "qbroad": 0.1,
     "rmin": 0.0,
     "rmax": 40.0,
-    "rstep": 0.01
+    "rstep": 0.5
 }
