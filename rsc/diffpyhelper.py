@@ -4,6 +4,7 @@ import numpy as np
 from diffpy.srfit.fitbase import FitContribution, FitRecipe, Profile
 from diffpy.srfit.fitbase.parameterset import ParameterSet
 from diffpy.srfit.pdf import PDFGenerator, PDFParser
+from diffpy.srfit.fitbase import FitResults
 from pyobjcryst import loadCrystal
 from pyobjcryst.crystal import Crystal
 from scipy.optimize import least_squares
@@ -288,7 +289,7 @@ def create_recipe_from_files(
     # profile.meta.update(meta_data)        
     recipe, pg = _create_recipe(equation, crystals, functions, profile, fc_name=fc_name)
     _initialize_recipe(recipe, functions, crystals, fc_name=fc_name, meta_data = meta_data)
-    return recipe#, pg
+    return recipe, pg
 
 
 def optimize_params(

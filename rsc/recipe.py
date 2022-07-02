@@ -8,9 +8,7 @@ import rsc.diffpyhelper as dh
 class CreateRecipe():
     def __init__(self, conf, phases, char_function):
         self.conf = FitConfig(**conf)
-        # self.data_file = data_file
         self.char_function = char_function
-
         self.phases = self._parse_phases(phases)
 
         self._create_cif_files()
@@ -30,10 +28,6 @@ class CreateRecipe():
         phases_cp = phases.copy()
         for i, phase in enumerate(phases):
             ocur = phases.count(phase)
-            # if ocur < 1:
-            #     continue
-            # cnt = self._phase_counter(phase)
-            # phases_cp[i] = f'{phase}Γ{cnt}'
             if ocur > 1:
                 cnt = self._phase_counter(phase)
                 phases_cp[i] = f'{phase}Γ{cnt}'
@@ -43,7 +37,7 @@ class CreateRecipe():
     def _create_cif_files(self):
         self.cif_files = {}
         for phase in list(self.phases):
-            self.cif_files[f'{phase}'] = f'./CIFS/{phase.split("Γ")[0]}.cif'
+            self.cif_files[f'{phase}'] = f'./CIFS/{phase.split("Γ")[0]}.cif' 
 
     def _create_equation(self):
         equation_list = []
@@ -58,8 +52,7 @@ class CreateRecipe():
             self.functions[f'{phase}{function}'] = function_definition
 
     def update_recipe(self):
-        self.recipe = dh.create_recipe_from_files(
-            # data_file=self.data_file,
+        self.recipe, self.pg = dh.create_recipe_from_files(
             meta_data=self.conf(),
             equation=self.equation,
             cif_files=self.cif_files,
@@ -76,6 +69,7 @@ class CreateRecipe():
         profile.meta.update(self.conf())
 
     def default_restraints(self):
+        contributions = self.recipe._contributions['PDF']
         recipe = self.recipe
         for phase in self.phases:
 
@@ -83,14 +77,17 @@ class CreateRecipe():
             recipe.restrain(delta2, lb=0, ub=5, sig=1e-3)
             delta2.value = 3.0
 
-            
-            # adp = getattr(self.recipe, f'{phase}_adp')
-            # recipe.restrain(adp, lb=0, ub=2, sig=1e-3)
-
-
             scale = getattr(self.recipe, f'{phase}_scale')
             recipe.restrain(scale, lb=0.001, ub=2, sig=1e-3)
             scale.value = 0.5
+
+
+            
+            
+            biso = getattr(contributions, phase)
+            for scat in biso.phase.getScatterers():
+                recipe.restrain(scat.Biso, lb=0, ub=5)
+
 
             for abc in ['a', 'b', 'c']:
                 try:
@@ -118,6 +115,7 @@ class CreateRecipe():
             ['free', 'lat', 'scale'],
             ['free', *ns],
             ['free', 'adp', 'delta2'],
+            ['free', 'all'],
         ]
 
     def remove_phase(self, p):
